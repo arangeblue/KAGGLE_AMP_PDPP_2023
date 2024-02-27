@@ -1,0 +1,423 @@
+# AMP-parkinson disease progression prediction
+
+## 목적
+
+- 파킨슨 질병에 걸린 사람들을 진단하는 MDS-UPDRS 라는 표가 있다. 진단표는 updrs_1,updrs_2,updrs_3,updrs_4 이렇게 4 part로 구성되고 각각 비운동영역과 운동영역 등으로 나뉘어 점수를 측정하고 이 때 점수가 높을수록 환자가 느끼고 경험하는 파킨슨 질병의 효력을 의미한다.
+
+- 이 대회의 목표는 환자가 진단을 받은 후 0, 6, 12, 24개월 뒤의 updrs 진단 score를 예측하는 것으로, 주어진 데이터는 환자가 진단받은 날과 환자의 protein, peptide점수와 clinical(updrs score 데이터) 정보이다. 이 때, 모든 날에 protein, peptide 정보가 있는 것은 아니고 또 train set에 있는 protein과 peptide가 test set에 있다는 보장은 없다.
+
+
+## 문제점
+
+1. 주어진 데이터의 가장 큰 부분인 protein, peptide 데이터가 모든 날에 주어지지 않았고, train set과 test set가 명백하게 다른 분포를 지니고 있다. 예컨대 protein, peptide를 보면 같은 날에 측정했다고 해서 모든 데이터가 있지 않고, 또 TRAIN에 있다고 해서 TEST에 있다는 보장도 없다
+
+2. updrs 스코어는 의사가 진단하는 명목도 있지만 환자가 자신의 컨티션을 체크하는 것도 있기 때문에 주관적이다.
+	- 예컨대 같은 cfs에 단백질의 수치가 같아도, 환자가 느끼는 통증이 다르고 또 환자가 score로 측정할 때도 다르다.
+
+3. 오늘의 protein, peptide 정보를 가지고 6, 12, 24개월(2년)까지 예측한다는 것이 어느 정도 한계가 있다.
+
+4. 파킨슨과 연관된 protein과 peptide를 찾았지만 이와 SCORE의 연결관계가 뚜렷하지 않다.
+
+5. 다른 ml, dl model에 protein, peptide 정보를 담아서 학습해도 cv~55 lb ~56.3 근처
+
+
+
+## 데이터 분석
+
+1. updrs_4를 제외하고 거의 선형적으로 시간이 지날수록 updrs score가 높아짐
+2. 
+
+
+
+----------- positive corr -----------------
+# feature : P00738 10fold - positive corr
+Validation updrs_1 SMAPE: 54.8136
+Validation updrs_2 SMAPE: 64.4208
+Validation updrs_3 SMAPE: 57.9728
+Validation updrs_4 SMAPE: 42.5217
+Sum Validation SMAPE: 54.9322
+
+
+-----------------------------------------
+
+
+# feature : O15240
+Validation SMAPE: 54.9069
+Validation SMAPE: 64.4222
+Validation SMAPE: 57.7246
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.2138
+
+# feature : P01009
+Validation SMAPE: 54.9805
+Validation SMAPE: 64.6240
+Validation SMAPE: 57.8973
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.3259
+
+# feature : P04180
+Validation SMAPE: 54.8616
+Validation SMAPE: 64.5778
+Validation SMAPE: 57.8767
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.2795
+
+# feature : P13521
+Validation SMAPE: 54.8360
+Validation SMAPE: 64.4183
+Validation SMAPE: 57.7431
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.1998
+
+# feature : P04217
+Validation SMAPE: 54.8917
+Validation SMAPE: 64.5930
+Validation SMAPE: 57.9281
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.3036
+
+# feature : P05067 - updrs_3 
+Validation SMAPE: 54.7096
+Validation SMAPE: 64.3775
+Validation SMAPE: 57.6891
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.1444
+
+# feature : P04180
+Validation SMAPE: 54.8616
+Validation SMAPE: 64.5778
+Validation SMAPE: 57.8767
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.2795
+
+# feature : O00533 10fold
+Validation updrs_1 SMAPE: 54.7586
+Validation updrs_2 SMAPE: 64.4193
+Validation updrs_3 SMAPE: 57.4950
+Validation updrs_4 SMAPE: 42.5217
+Sum Validation SMAPE: 54.7986
+
+# feature : P04180 10fold
+Validation updrs_1 SMAPE: 54.7165
+Validation updrs_2 SMAPE: 64.4999
+Validation updrs_3 SMAPE: 57.8752
+Validation updrs_4 SMAPE: 42.5217
+Sum Validation SMAPE: 54.9033
+
+# feature : P02649 10fold
+Validation updrs_1 SMAPE: 54.8883
+Validation updrs_2 SMAPE: 64.6111
+Validation updrs_3 SMAPE: 58.0221
+Validation updrs_4 SMAPE: 42.5078
+Sum Validation SMAPE: 55.0073
+
+# feature : P10645 10fold 0.04, 0.96
+Validation updrs_1 SMAPE: 54.7793
+Validation updrs_2 SMAPE: 63.9681
+Validation updrs_3 SMAPE: 57.6388
+Validation updrs_4 SMAPE: 42.5217
+Sum Validation SMAPE: 54.7270
+
+feature : P10645 10fold 0.05, 0.95
+Validation updrs_1 SMAPE: 54.7459
+Validation updrs_2 SMAPE: 63.8828
+Validation updrs_3 SMAPE: 57.6190
+Validation updrs_4 SMAPE: 42.5748
+Sum Validation SMAPE: 54.7056
+
+-------------------------------- best score ---------------------------
+
+- lb 56.3
+# feature : P05060 updrs_1 best
+Validation SMAPE: 54.6657
+Validation SMAPE: 64.3393
+Validation SMAPE: 57.8309
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.1594
+
+feature : Q06481 - updrs_2,3 best
+Validation SMAPE: 54.7229
+Validation SMAPE: 64.2654
+Validation SMAPE: 57.6049
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.0987
+
+
+# best score - feature_14 : P05060, feature_23 : Q06481
+Validation SMAPE: 54.6657
+Validation SMAPE: 64.2654
+Validation SMAPE: 57.6049
+Validation SMAPE: 43.8016
+Sum Validation SMAPE: 55.0844
+
+- P05060 updrs_1
+- Q06481 updrs_2, 3
+
+
+---------------------------------------
+
+# best score - updrs_4 median window_max(x)
+
+lb - 56.1
+
+feature : P05060
+Validation updrs_1 SMAPE: 54.4089
+Validation updrs_2 SMAPE: 64.6107
+Validation updrs_3 SMAPE: 57.9765
+Validation updrs_4 SMAPE: 42.2206
+Sum Validation SMAPE: 54.8042
+
+
+----------------------------------------
+
+# baseline
+
+lb - 55.3
+
+feature : P05060
+Validation updrs_1 SMAPE: 54.4089
+Validation updrs_2 SMAPE: 63.9844
+Validation updrs_3 SMAPE: 57.7512
+Validation updrs_4 SMAPE: 42.5400
+Sum Validation SMAPE: 54.6711
+
+--------------------------------
+
+# linear updrs_1,2 quadratic updrs_3, 4
+[0.0, 0.0048, 0.0001]
+
+
+lb - 55.4
+
+feature : P05060
+Validation updrs_1 SMAPE: 54.4091
+Validation updrs_2 SMAPE: 63.9984
+Validation updrs_3 SMAPE: 57.5936
+Validation updrs_4 SMAPE: 42.2195
+Sum Validation SMAPE: 54.5552
+
+-------------------------------
+
+# linear updrs_1,2,4 , quadratic updrs_3
+
+feature : P05060
+Validation updrs_1 SMAPE: 54.4089
+Validation updrs_2 SMAPE: 63.9844
+Validation updrs_3 SMAPE: 57.5938
+Validation updrs_4 SMAPE: 42.5400
+Sum Validation SMAPE: 54.6318
+
+-------------------------------
+
+[0,0.04,0.96,1.0]
+feature : Q06481
+Validation updrs_1 SMAPE: 54.5004
+Validation updrs_2 SMAPE: 63.9780
+Validation updrs_3 SMAPE: 57.1965
+Validation updrs_4 SMAPE: 42.5404
+Sum Validation SMAPE: 54.5538
+
+-------------------------------
+[0,0.05,0.95,1.0]
+
+feature : Q06481
+Validation updrs_1 SMAPE: 54.4915
+Validation updrs_2 SMAPE: 63.8550
+Validation updrs_3 SMAPE: 57.3064
+Validation updrs_4 SMAPE: 42.5404
+Sum Validation SMAPE: 54.5483
+
+
+------------------------------
+
+# best score - feature_14 : P05060, feature_23 : Q06481
+
+feature 14 : P05060, feature 23 : Q06481
+Validation updrs_1 SMAPE: 54.4089
+Validation updrs_2 SMAPE: 63.9778
+Validation updrs_3 SMAPE: 57.2019
+Validation updrs_4 SMAPE: 42.5400
+Sum Validation SMAPE: 54.5321
+
+
+
+
+-------------------------------
+
+lb 55.6
+# single, updrs_1 2~42, updrs_3 2~83, 10fold
+
+feature : P05060
+Validation updrs_1 SMAPE: 54.3502
+Validation updrs_2 SMAPE: 63.9495
+Validation updrs_3 SMAPE: 57.5919
+Validation updrs_4 SMAPE: 42.4586
+Sum Validation SMAPE: 54.5875
+
+
+
+
+
+
+
+
+
+------------------------------------
+
+p05060 peptides corr
+
+	updrs_1	updrs_2	updrs_3	updrs_4
+updrs_1	1.000000	0.661802	0.434569	0.432620
+updrs_2	0.661802	1.000000	0.735106	0.383866
+updrs_3	0.434569	0.735106	1.000000	0.221593
+updrs_4	0.432620	0.383866	0.221593	1.000000
+visit_month	0.121625	0.132308	0.135300	0.138013
+patient_id	0.048258	0.037762	0.047173	-0.009203
+LLRDPADASEAHESSSR	-0.091555	-0.188504	-0.172592	-0.046121
+C(UniMod_4)IIEVLSNALSK	-0.100740	-0.151447	-0.132985	-0.074924
+GYPGVQAPEDLEWER	-0.112759	-0.197115	-0.225110	-0.061292
+SSQGGSLPSEEK	-0.131866	-0.167517	-0.147313	-0.036739
+GEAGAPGEEDIQGPTK	-0.154742	-0.171371	-0.169953	-0.050833
+
+
+Q06481
+
+	updrs_1	updrs_2	updrs_3	updrs_4
+updrs_1	1.000000	0.661802	0.434569	0.432620
+updrs_2	0.661802	1.000000	0.735106	0.383866
+updrs_3	0.434569	0.735106	1.000000	0.221593
+updrs_4	0.432620	0.383866	0.221593	1.000000
+visit_month	0.121625	0.132308	0.135300	0.138013
+patient_id	0.048258	0.037762	0.047173	-0.009203
+Q06481	-0.202931	-0.228925	-0.200598	-0.119843
+
+# Q06481, P05060 nan count
+UniProt
+Q06481    23
+P05060     1
+dtype: int64
+
+
+
+
+----------------------------20230518 last day
+
+# origianl validation
+
+updrs_1 fold 0: 57.52
+updrs_1 fold 1: 53.44
+updrs_1 fold 2: 55.92
+updrs_1 fold 3: 55.31
+updrs_1 fold 4: 53.28
+updrs_1                 55.09
+updrs_2 fold 0: 66.05
+updrs_2 fold 1: 59.40
+updrs_2 fold 2: 64.79
+updrs_2 fold 3: 68.66
+updrs_2 fold 4: 63.54
+updrs_2                 64.49
+updrs_3 fold 0: 58.51
+updrs_3 fold 1: 52.31
+updrs_3 fold 2: 54.34
+updrs_3 fold 3: 64.75
+updrs_3 fold 4: 57.48
+updrs_3                 57.48
+updrs_4 fold 0: 39.15
+updrs_4 fold 1: 45.62
+updrs_4 fold 2: 36.80
+updrs_4 fold 3: 43.28
+updrs_4 fold 4: 41.80
+updrs_4                 41.33
+cv score                       54.60
+
+
+# original full validation
+
+updrs_1 fold 0: 57.31
+updrs_1 fold 1: 53.36
+updrs_1 fold 2: 55.10
+updrs_1 fold 3: 55.05
+updrs_1 fold 4: 53.73
+updrs_1                 54.91
+updrs_2 fold 0: 66.05
+updrs_2 fold 1: 59.13
+updrs_2 fold 2: 64.17
+updrs_2 fold 3: 68.70
+updrs_2 fold 4: 63.45
+updrs_2                 64.30
+updrs_3 fold 0: 58.50
+updrs_3 fold 1: 52.12
+updrs_3 fold 2: 54.30
+updrs_3 fold 3: 64.73
+updrs_3 fold 4: 57.43
+updrs_3                 57.42
+updrs_4 fold 0: 39.24
+updrs_4 fold 1: 45.75
+updrs_4 fold 2: 36.74
+updrs_4 fold 3: 43.28
+updrs_4 fold 4: 41.80
+updrs_4                 41.36
+cv score                       54.50
+
+
+
+
+
+# median fillna validation
+updrs_1 fold 0: 57.10
+updrs_1 fold 1: 53.14
+updrs_1 fold 2: 55.64
+updrs_1 fold 3: 55.02
+updrs_1 fold 4: 53.03
+updrs_1                 54.79
+updrs_2 fold 0: 65.76
+updrs_2 fold 1: 59.11
+updrs_2 fold 2: 64.37
+updrs_2 fold 3: 68.25
+updrs_2 fold 4: 63.12
+updrs_2                 64.12
+updrs_3 fold 0: 57.99
+updrs_3 fold 1: 51.99
+updrs_3 fold 2: 54.36
+updrs_3 fold 3: 64.44
+updrs_3 fold 4: 56.97
+updrs_3                 57.15
+updrs_4 fold 0: 25.11
+updrs_4 fold 1: 33.45
+updrs_4 fold 2: 25.13
+updrs_4 fold 3: 29.25
+updrs_4 fold 4: 31.37
+updrs_4                 28.86
+cv score                       51.23
+
+
+# full median fillna validation
+
+updrs_1 fold 0: 57.30
+updrs_1 fold 1: 52.94
+updrs_1 fold 2: 55.57
+updrs_1 fold 3: 55.02
+updrs_1 fold 4: 53.02
+updrs_1                 54.77
+updrs_2 fold 0: 65.76
+updrs_2 fold 1: 58.86
+updrs_2 fold 2: 63.94
+updrs_2 fold 3: 68.17
+updrs_2 fold 4: 63.12
+updrs_2                 63.97
+updrs_3 fold 0: 57.95
+updrs_3 fold 1: 51.93
+updrs_3 fold 2: 54.07
+updrs_3 fold 3: 64.42
+updrs_3 fold 4: 56.84
+updrs_3                 57.04
+updrs_4 fold 0: 25.74
+updrs_4 fold 1: 33.44
+updrs_4 fold 2: 25.32
+updrs_4 fold 3: 29.25
+updrs_4 fold 4: 30.60
+updrs_4                 28.87
+cv score                       51.16
+
+----------------------------------------------------
+
